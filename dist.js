@@ -542,7 +542,36 @@ var _default = function () {
       var result = [];
       (0, _utils.compileToQueryString)(output, [], result, []);
 
-      console.log(result.join('\n'));
+      var varArray = [];
+      Object.keys(variable).forEach(function (k) {
+        var v = variable[k];
+        varArray.push(k + ':"' + (typeof v === 'string' ? v : JSON.stringify(v)) + '"');
+      });
+      var body = 'query {\n      ' + name + '(' + varArray.join(',') + '){\n        ' + result.join('\n') + '\n      }\n    }';
+      console.log(body);
+
+      if (!window) {
+        return Promise.resolve('no fetch');
+      }
+
+      return fetch('http://52.77.106.36:4000/graphql', {
+        body: JSON.stringify({ query: body }),
+        method: 'POST',
+        headers: {
+          Accept: '*/*',
+          'Content-Type': 'application/json',
+          loginrole: 'ADMIN',
+          logintoken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ODE4M2I0NzBhZmE4MDFlMjMxNTkwNzkiLCJpYXQiOjE0Nzc5ODMwNDl9.X3ToMu6j-9mQVksVktxFpC1dhJ1jCoYnlvt8ZlAHyQg'
+        }
+      }).then(function (res) {
+        return res.json();
+      }).then(function (json) {
+        if (json.errors) {
+          return { errors: json.errors };
+        }
+
+        return json.data[name];
+      });
     }
   }, {
     key: 'compileQuery',
@@ -592,7 +621,7 @@ var engine = exports.engine = new _GraphEngine2.default();
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _desc, _value, _class, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5;
+var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _dec7, _dec8, _dec9, _desc, _value, _class, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6, _descriptor7, _descriptor8;
 
 var _field = __webpack_require__(2);
 
@@ -657,34 +686,37 @@ function _initializerWarningHelper(descriptor, context) {
   throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
 }
 
-var Assessment = (_dec = (0, _field2.default)('String', { on: 'asdf' }), _dec2 = (0, _field2.default)('Number', { flatten: 'profile.age' }), _dec3 = (0, _field2.default)('Number', { flatten: 'profile.yo.height' }), _dec4 = (0, _field2.default)('Number', { flatten: 'profile.yo.weight' }), _dec5 = (0, _nestedField2.default)({
-  name: {
-    first: 'String',
-    last: 'String',
-    address: {
-      country: {
-        name: 'String',
-        num: 'Number'
-      }
-    }
+var Assessment = (_dec = (0, _field2.default)('String'), _dec2 = (0, _field2.default)('Date'), _dec3 = (0, _field2.default)('Date'), _dec4 = (0, _field2.default)('String'), _dec5 = (0, _field2.default)('String'), _dec6 = (0, _field2.default)('String', { flatten: 'emails.address' }), _dec7 = (0, _field2.default)('String', { flatten: 'emails.verified' }), _dec8 = (0, _nestedField2.default)({
+  type: 'String',
+  streetName: 'String',
+  streetNumber: 'String',
+  floor: 'String',
+  unit: 'String',
+  city: 'String',
+  country: {
+    code: 'String',
+    description: 'String'
   },
-  gender: 'String'
-}, { on: 'ssss' }), _dec6 = (0, _query2.default)('queryName', {
-  data: 'Assessment',
-  pageInfo: { page: 'Number' }
-}), (_class = function () {
+  postCode: 'String'
+}), _dec9 = (0, _query2.default)('user', 'Assessment'), (_class = function () {
   function Assessment() {
     _classCallCheck(this, Assessment);
 
     _initDefineProp(this, 'id', _descriptor, this);
 
-    _initDefineProp(this, 'age', _descriptor2, this);
+    _initDefineProp(this, 'createdAt', _descriptor2, this);
 
-    _initDefineProp(this, 'height', _descriptor3, this);
+    _initDefineProp(this, 'updatedAt', _descriptor3, this);
 
-    _initDefineProp(this, 'weight', _descriptor4, this);
+    _initDefineProp(this, 'role', _descriptor4, this);
 
-    _initDefineProp(this, 'others', _descriptor5, this);
+    _initDefineProp(this, 'username', _descriptor5, this);
+
+    _initDefineProp(this, 'email', _descriptor6, this);
+
+    _initDefineProp(this, 'verified', _descriptor7, this);
+
+    _initDefineProp(this, 'addresses', _descriptor8, this);
   }
 
   _createClass(Assessment, null, [{
@@ -698,26 +730,36 @@ var Assessment = (_dec = (0, _field2.default)('String', { on: 'asdf' }), _dec2 =
 }(), (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'id', [_dec], {
   enumerable: true,
   initializer: null
-}), _descriptor2 = _applyDecoratedDescriptor(_class.prototype, 'age', [_dec2], {
+}), _descriptor2 = _applyDecoratedDescriptor(_class.prototype, 'createdAt', [_dec2], {
   enumerable: true,
   initializer: null
-}), _descriptor3 = _applyDecoratedDescriptor(_class.prototype, 'height', [_dec3], {
+}), _descriptor3 = _applyDecoratedDescriptor(_class.prototype, 'updatedAt', [_dec3], {
   enumerable: true,
   initializer: null
-}), _descriptor4 = _applyDecoratedDescriptor(_class.prototype, 'weight', [_dec4], {
+}), _descriptor4 = _applyDecoratedDescriptor(_class.prototype, 'role', [_dec4], {
   enumerable: true,
   initializer: null
-}), _descriptor5 = _applyDecoratedDescriptor(_class.prototype, 'others', [_dec5], {
+}), _descriptor5 = _applyDecoratedDescriptor(_class.prototype, 'username', [_dec5], {
   enumerable: true,
   initializer: null
-}), _applyDecoratedDescriptor(_class, 'get', [_dec6], Object.getOwnPropertyDescriptor(_class, 'get'), _class)), _class));
+}), _descriptor6 = _applyDecoratedDescriptor(_class.prototype, 'email', [_dec6], {
+  enumerable: true,
+  initializer: null
+}), _descriptor7 = _applyDecoratedDescriptor(_class.prototype, 'verified', [_dec7], {
+  enumerable: true,
+  initializer: null
+}), _descriptor8 = _applyDecoratedDescriptor(_class.prototype, 'addresses', [_dec8], {
+  enumerable: true,
+  initializer: null
+}), _applyDecoratedDescriptor(_class, 'get', [_dec9], Object.getOwnPropertyDescriptor(_class, 'get'), _class)), _class));
 
 
-var ass = new Assessment();
-ass.id = '1';
 console.log(_schemaStore2.default);
-console.log(ass.id);
-Assessment.get(1);
+
+Assessment.get("NTgyZDVhZDEyNjQ1YjcyMGIzN2Q4YTEx").then(function (res) {
+  debugger;
+  console.log(res);
+});
 
 /***/ })
 /******/ ]);

@@ -5,10 +5,13 @@ import query from './@decorator/query';
 import schemaStore from './schemaStore';
 
 class Assessment {
-  @field('String', { on: 'asdf' })             id;
-  @field('Number', { flatten: 'profile.age' }) age;
-  @field('Number', { flatten: 'profile.yo.height' }) height;
-  @field('Number', { flatten: 'profile.yo.weight' }) weight;
+  @field('String')                                  id;
+  @field('Date')                                    createdAt;
+  @field('Date')                                    updatedAt;
+  @field('String')                                  role;
+  @field('String')                                  username;
+  @field('String', { flatten: 'emails.address' })   email;
+  @field('String', { flatten: 'emails.verified' })  verified;
   @nestedField({
     type: 'String',
     streetName: 'String',
@@ -21,21 +24,24 @@ class Assessment {
       description: 'String',
     },
     postCode: 'String'
-  })                                           addresses;
+  })                                                addresses;
 
 
 
-  @query('queryName', {
-    data: 'Assessment',
-    pageInfo: { page: 'Number' }
-  })
+  @query('user', 'Assessment')
   static get(id) {
-    return {id};
+    return { id };
   }
 }
 
-var ass = new Assessment();
-ass.id = '1';
 console.log(schemaStore);
-console.log(ass.id);
-Assessment.get(1);
+
+Assessment.get("NTgyZDVhZDEyNjQ1YjcyMGIzN2Q4YTEx").then((res) => {
+  debugger
+  console.log(res);
+});
+
+
+
+
+
