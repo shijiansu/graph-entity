@@ -1,6 +1,7 @@
 import field from './@decorator/field';
 import fieldOn from './@decorator/fieldOn';
-// import query from './@decorator/query';
+import exclude from './@decorator/exclude';
+import query from './@decorator/query';
 
 import schemaStore from './schemaStore';
 
@@ -9,7 +10,7 @@ class Assessment {
   @field('Date')                                                     createdAt;
   @field('Date')                                                     updatedAt;
   @field('String')                                                   role;
-  @field('String')                                                   username;
+  @field('String', 'username')                                       name;
   @field({
     address: 'String',
     verified: 'String'
@@ -28,22 +29,23 @@ class Assessment {
     postCode: 'String'
   })                                                                 addresses;
 
-  @fieldOn({ a: 'String', b: { c: 'String', d: 'String' } }, 'asdf') oyoyo;
-  @fieldOn('String', ['asdf', 'sss'])                                ayaya;
+  // @fieldOn({ a: 'String', b: { c: 'String', d: 'String' } }, 'asdf') oyoyo;
+  // @fieldOn('String', ['asdf', 'sss'])                                ayaya;
 
 
-  // @query('user', 'Assessment')
-  // static get(id) {
-  //   return { id };
-  // }
+  @query('user', 'Assessment')
+  @exclude(['name'])
+  static get(id) {
+    return { id };
+  }
 }
 
 console.log(schemaStore.Assessment.composeToString([]).join('\n'));
 
-// Assessment.get("NTgyZDVhZDEyNjQ1YjcyMGIzN2Q4YTEx").then((res) => {
-//   debugger
-//   console.log(res);
-// });
+Assessment.get("NTgyZDVhZDEyNjQ1YjcyMGIzN2Q4YTEx").then((res) => {
+  debugger
+  console.log(res);
+});
 
 
 

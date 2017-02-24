@@ -86,6 +86,41 @@ export default class Schema {
     return result;
   }
 
+  composeResult(data) {
+    const instance = new this.entityClass();
+
+    // join 'on' fields into normal fields
+    const allFields = { ...this.fields };
+    Object.keys(this.ons).forEach(on => {
+      Object.assign(allFields, this.ons[on]);
+    });
+
+    // map data to entity instance
+    Object.keys(allFields).forEach(key => {
+      const { type, alias } = allFields[key];
+
+      if (!(alias in data)) {
+        return;
+      }
+
+      if (data[alias] === null) {
+        instance[key] = null;
+      } else if (ATOM_TYPE.indexOf(type) >= 0) {
+        instance[key] = data[alias];
+      } else {
+        instance[key] = data[alias] instanceof Array
+          ? data[alias].map(d => schemaStore[type].composeResult(d))
+          : schemaStore[type].composeResult(data[alias]);
+      }
+    });
+
+    return instance;
+  }
+
+  cleanInput() {
+
+  }
+
   static generateNestedFields(fields, paths) {
     const AnonymousClass = function () {};
     const schema = new Schema(null, AnonymousClass, paths);
@@ -94,7 +129,7 @@ export default class Schema {
       Object.defineProperty(
         AnonymousClass.prototype,
         key,
-        (...args) => attachGetterSetter(...args, schema.displayName)
+        attachGetterSetter(undefined, key, {}, schema.displayName)
       );
 
       schema.addField(key, fields[key], key);

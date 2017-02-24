@@ -3,18 +3,17 @@ export const PREFIX = '$$GE_';
 
 export const getNewSchemaKey = () => `${PREFIX}anonymous_${uuid++}`;
 export const getHiddenFieldName = (field) => `${PREFIX}hidden_${field}`;
+export const getOperationKey = (entity, field) => `${PREFIX}operation_${entity}_${field}`;
 
 export const ATOM_TYPE = ['Date', 'String', 'Number', 'Boolean', 'ID'];
 
 export const attachGetterSetter = (proto, fieldName, descriptor, displayName) => {
   const __fieldName = getHiddenFieldName(fieldName);
 
-  // TODO: change prototype in different order may cause performance issue
-  //       according to v8 hidden class mechanism.
-  //       put prototype outside ??
+  // warning when accessing an untouched field
   descriptor.get = function () {
     if (!this[__fieldName]) {
-      console.warning(`Graph Entity: You are trying to access an untouched field (${displayName}::${fieldName})`);
+      console.warn(`Graph Entity: You are trying to access an untouched field (${displayName}::${fieldName})`);
       return undefined;
     }
 
@@ -36,5 +35,3 @@ export const attachGetterSetter = (proto, fieldName, descriptor, displayName) =>
 
   return descriptor;
 };
-
-
