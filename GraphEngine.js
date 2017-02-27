@@ -1,9 +1,9 @@
 import schemaStore from './schemaStore';
 
 export default class {
-  cleanAndFetch(metaKey, variables, afterware) {
+  cleanAndFetch(metaKey, variables, middleware, afterware) {
     const { input, name, output, isMutate, excludes = [] } = schemaStore[metaKey];
-    const outputFields = schemaStore[output].composeToString([], excludes);
+    const outputFields = schemaStore[output].composeToString(['', ''], excludes);
     const varArray = Object.keys(variables).map(k => {
       const value = variables[k];
       return `${k}: "${typeof value === 'string' ? value : JSON.stringify(value)}"`;
@@ -32,25 +32,16 @@ export default class {
       }
 
       let outputData = json.data[name];
-      if (afterware) {
-        outputData = afterware(outputData);
+      if (middleware) {
+        outputData = middleware(outputData);
       }
 
-      return schemaStore[output].composeResult(outputData);
+      const result = schemaStore[output].composeResult(outputData);
+      if (afterware) {
+        return afterware(result);
+      }
+
+      return result;
     });
   }
-
-  compileQuery(output) {
-
-  }
-
-  cleanVariable(input, variable) {
-    return variable;
-  }
-
-  composeResult(output, result, exclude) {
-
-  }
-
-
-};
+}

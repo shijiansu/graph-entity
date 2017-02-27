@@ -16,11 +16,10 @@ export default (key, operationName, output, input, descriptor, isMutate = false)
   const originFunc = descriptor.value;
   descriptor.value = function (...args) {
     const ret = originFunc(...args);
-    const { variables = ret, afterware } = ret;
+    const { variables = ret, afterware, middleware } = ret;
 
     // it returns a Promise, so should be called by await
-    return engine.cleanAndFetch(key, variables)
-      .then(data => (afterware ? afterware(data) : data));
+    return engine.cleanAndFetch(key, variables, middleware, afterware);
   };
 
   const schema = schemaStore[key] = schemaStore[key] || {};
