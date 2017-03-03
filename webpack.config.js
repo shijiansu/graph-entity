@@ -1,7 +1,7 @@
 module.exports = {
-  entry: './index.js',
+  entry: './example/index.js',
   output: {
-    filename: 'dist.js',
+    filename: './example/dist.js',
   },
   module: {
     loaders: [{
@@ -11,9 +11,15 @@ module.exports = {
       query: {
         presets: ['latest', 'stage-0'],
         plugins: [
-          "transform-decorators-legacy"
+          'transform-decorators-legacy',
+          ['transform-runtime', {
+            helpers: true, // defaults to true
+            polyfill: true, // defaults to true
+            regenerator: true, // defaults to true
+            moduleName: 'babel-runtime' // defaults to 'babel-runtime'
+          }]
         ]
       }
     }]
   }
-};
+}
