@@ -6,7 +6,7 @@ export default class {
     const outputFields = schemaStore[output].composeToString(['', ''], excludes);
     const varArray = Object.keys(variables).map(k => {
       const value = variables[k];
-      return `${k}: "${typeof value === 'string' ? value : JSON.stringify(value)}"`;
+      return `${k}: ${typeof value === 'string' ? '"' + value + '"' : JSON.stringify(value)}`;
     });
 
     const body = `${isMutate ? 'mutate' : 'query'} {

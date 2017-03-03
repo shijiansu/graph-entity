@@ -6,11 +6,11 @@ export default (key, operationName, output, input, descriptor, isMutate = false)
   let outputType = output;
   let inputType = input;
   if (typeof output === 'object') {
-    outputType = Schema.generateNestedFields(output, [key, 'output']).schemaKey;
+    outputType = Schema.generateNestedFields(output, [key, 'output']);
   }
 
   if (typeof input === 'object') {
-    inputType = Schema.generateNestedFields(input, [key, 'input']).schemaKey;
+    inputType = Schema.generateNestedFields(input, [key, 'input']);
   }
 
   const originFunc = descriptor.value;
