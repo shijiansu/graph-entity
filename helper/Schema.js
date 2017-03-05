@@ -1,7 +1,8 @@
-import schemaStore from '../schemaStore';
 import { getNewSchemaKey, attachGetterSetter, ATOM_TYPE } from '../utils';
 
 export default class Schema {
+  _schemaTree = {};
+
   schemaKey = '';
   paths = [];
   entityClass = null;
@@ -13,7 +14,8 @@ export default class Schema {
   fields = {};
   ons = {};
 
-  constructor(name, entityClass, paths) {
+  constructor(schemaTree, name, entityClass, paths) {
+    this._schemaTree = schemaTree;
     this.schemaKey = name || getNewSchemaKey();
     this.paths = paths;
     this.entityClass = entityClass;
@@ -23,7 +25,7 @@ export default class Schema {
 
   addField(name, type, alias) {
     if (typeof type === 'object') {
-      type = Schema.generateNestedFields(type, this.paths.concat(name));
+      type = Schema.generateNestedFields(this._schemaTree, type, this.paths.concat(name));
     }
 
     this.fields[name] = { type, alias: alias || name };
@@ -31,7 +33,7 @@ export default class Schema {
 
   addFieldOn(name, type, ons) {
     if (typeof type === 'object') {
-      type = Schema.generateNestedFields(type, this.paths.concat(name));
+      type = Schema.generateNestedFields(this._schemaTree, type, this.paths.concat(name));
     }
 
     if (!(ons instanceof Array)) {
@@ -121,9 +123,9 @@ export default class Schema {
 
   }
 
-  static generateNestedFields(fields, paths) {
+  static generateNestedFields(schemaTree, fields, paths) {
     const AnonymousClass = function () {};
-    const schema = new Schema(null, AnonymousClass, paths);
+    const schema = new Schema(schemaTree, null, AnonymousClass, paths);
 
     Object.keys(fields).forEach(key => {
       Object.defineProperty(

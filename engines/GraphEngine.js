@@ -1,5 +1,6 @@
 import schemaStore from './schemaStore';
 
+class GraphEngine
 export default class {
   cleanAndFetch(metaKey, variables, middleware, afterware) {
     const { input, name, output, isMutate, excludes = [] } = schemaStore[metaKey];

@@ -13,13 +13,13 @@ module.exports = {
         plugins: [
           'transform-decorators-legacy',
           ['transform-runtime', {
-            helpers: true, // defaults to true
-            polyfill: true, // defaults to true
-            regenerator: true, // defaults to true
-            moduleName: 'babel-runtime' // defaults to 'babel-runtime'
+            helpers: true,
+            polyfill: false,
+            regenerator: true,
+            moduleName: 'babel-runtime'
           }]
         ]
       }
     }]
   }
-}
+};
