@@ -42,7 +42,7 @@ export const attachGetterSetter = (fieldName, descriptor, displayName, dataType)
   descriptor.set = function (value) {
     this[__fieldName] = {
       touched: true,
-      normalize(value),
+      value: normalize(value),
     };
   };
 
