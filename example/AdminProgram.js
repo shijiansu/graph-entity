@@ -1,5 +1,6 @@
-import field from '../@decorator/field';
-import query from '../@decorator/query';
+import graphEntity from './graphEntityClient';
+
+const { field, query } = graphEntity;
 
 export default class AdminProgram {
   @field('ID')      id;
