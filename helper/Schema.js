@@ -1,4 +1,4 @@
-import { getNewSchemaKey, attachGetterSetter, ATOM_TYPE } from '../utils';
+import { getNewSchemaKey, attachGetterSetter, ATOM_TYPE } from './utils';
 
 export default class Schema {
   _schemaTree = {};
@@ -20,7 +20,7 @@ export default class Schema {
     this.paths = paths;
     this.entityClass = entityClass;
 
-    schemaStore[this.schemaKey] = this;
+    this._schemaTree[this.schemaKey] = this;
   }
 
   addField(name, type, alias) {
@@ -67,7 +67,7 @@ export default class Schema {
           result.push(`${spaces}${alias}`);
         } else {
           result.push(`${spaces}${alias} {`);
-          result.push(...schemaStore[type].composeToString(innerPaths.concat(alias), excludes));
+          result.push(...this._schemaTree[type].composeToString(innerPaths.concat(alias), excludes));
           result.push(`${spaces}}`);
         }
       });
@@ -111,8 +111,8 @@ export default class Schema {
         instance[key] = data[alias];
       } else {
         instance[key] = data[alias] instanceof Array
-          ? data[alias].map(d => schemaStore[type].composeResult(d))
-          : schemaStore[type].composeResult(data[alias]);
+          ? data[alias].map(d => this._schemaTree[type].composeResult(d))
+          : this._schemaTree[type].composeResult(data[alias]);
       }
     });
 
@@ -131,7 +131,7 @@ export default class Schema {
       Object.defineProperty(
         AnonymousClass.prototype,
         key,
-        attachGetterSetter(undefined, key, {}, schema.displayName)
+        attachGetterSetter(key, {}, schema.displayName, fields[key])
       );
 
       schema.addField(key, fields[key], key);

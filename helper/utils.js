@@ -7,8 +7,27 @@ export const getOperationKey = (entity, field) => `${PREFIX}operation_${entity}_
 
 export const ATOM_TYPE = ['Date', 'String', 'Number', 'Boolean', 'ID'];
 
-export const attachGetterSetter = (proto, fieldName, descriptor, displayName) => {
+export const attachGetterSetter = (fieldName, descriptor, displayName, dataType) => {
   const __fieldName = getHiddenFieldName(fieldName);
+
+  const normalize = ATOM_TYPE.includes(dataType) ? (value) => {
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    switch (dataType) {
+      case 'Date':
+        return new Date(value);
+      case 'String':
+        return String(value);
+      case 'Number':
+        return Number(value);
+      case 'Boolean':
+        return Boolean(value);
+      case 'ID':
+        return value;
+    }
+  } : v => v;
 
   // warning when accessing an untouched field
   descriptor.get = function () {
@@ -23,7 +42,7 @@ export const attachGetterSetter = (proto, fieldName, descriptor, displayName) =>
   descriptor.set = function (value) {
     this[__fieldName] = {
       touched: true,
-      value,
+      normalize(value),
     };
   };
 

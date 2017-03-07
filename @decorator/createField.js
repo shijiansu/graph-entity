@@ -10,7 +10,7 @@ export default (schemaTree) => {
 
     schema.addField(fieldName, dataType, alias);
 
-    return attachGetterSetter(proto, fieldName, descriptor, schema.displayName);
+    return attachGetterSetter(fieldName, descriptor, schema.displayName, dataType);
   };
 
   return decorator;

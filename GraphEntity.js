@@ -3,7 +3,7 @@ import createFieldOn from './@decorator/createFieldOn';
 import createOperation from './@decorator/createOperation';
 import createExclude from './@decorator/createExclude';
 
-class GraphEntity {
+export default class {
   /*
     // Assessment is class identifier of an entity
     // has relation to $$_GE_display_name but not readable
@@ -16,15 +16,13 @@ class GraphEntity {
     }
   */
   _schemaTree = {};
-  _engine = null;
-  _config = {};
 
   constructor(engine, config) {
     if (!engine) {
       throw new Error('Please set an engine to graph-entity (graphEngine or restEngine)');
     }
 
-    this._engine = engine;
+    engine._schemaTree = this._schemaTree;
 
     this.field = createField(this._schemaTree);
     this.fieldOn = createFieldOn(this._schemaTree);

@@ -1,10 +1,16 @@
-import schemaStore from './schemaStore';
-
-class GraphEngine
 export default class {
+  _schemaTree = {};
+  _uri = null;
+  _headers = {};
+
+  constructor(uri, headers) {
+    this._uri = uri;
+    this._headers = headers;
+  }
+
   cleanAndFetch(metaKey, variables, middleware, afterware) {
-    const { input, name, output, isMutate, excludes = [] } = schemaStore[metaKey];
-    const outputFields = schemaStore[output].composeToString(['', ''], excludes);
+    const { input, name, output, isMutate, excludes = [] } = this._schemaTree[metaKey];
+    const outputFields = this._schemaTree[output].composeToString(['', ''], excludes);
     const varArray = Object.keys(variables).map(k => {
       const value = variables[k];
       return `${k}: ${typeof value === 'string' ? '"' + value + '"' : JSON.stringify(value)}`;
@@ -16,14 +22,13 @@ export default class {
       }
     }`;
 
-    return fetch('http://52.77.106.36:4000/graphql', {
+    return fetch(this._uri, {
       body: JSON.stringify({ query: body }),
       method: 'POST',
       headers: {
         Accept: '*/*',
         'Content-Type': 'application/json',
-        loginrole: 'ADMIN',
-        logintoken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ODE4M2I0NzBhZmE4MDFlMjMxNTkwNzkiLCJpYXQiOjE0Nzc5ODMwNDl9.X3ToMu6j-9mQVksVktxFpC1dhJ1jCoYnlvt8ZlAHyQg',
+        ...this._headers,
       },
     })
     .then(res => res.json())
@@ -37,7 +42,7 @@ export default class {
         outputData = middleware(outputData);
       }
 
-      const result = schemaStore[output].composeResult(outputData);
+      const result = this._schemaTree[output].composeResult(outputData);
       if (afterware) {
         return afterware(result);
       }

@@ -1,4 +1,5 @@
 import { getOperationKey } from '../helper/utils';
+import Schema from '../helper/Schema';
 
 export default (schemaTree, engine, isMutate) => {
   const decorator = (operationName, output, input) => (proto, fieldName, descriptor) => {
@@ -10,11 +11,11 @@ export default (schemaTree, engine, isMutate) => {
     let outputType = output;
     let inputType = input;
     if (typeof output === 'object') {
-      outputType = Schema.generateNestedFields(output, [key, 'output']);
+      outputType = Schema.generateNestedFields(schemaTree, output, [operationKey, 'output']);
     }
 
     if (typeof input === 'object') {
-      inputType = Schema.generateNestedFields(input, [key, 'input']);
+      inputType = Schema.generateNestedFields(schemaTree, input, [operationKey, 'input']);
     }
 
     const originFunc = descriptor.value;
@@ -23,10 +24,10 @@ export default (schemaTree, engine, isMutate) => {
       const { variables = ret, afterware, middleware } = ret;
 
       // it returns a Promise, so should be called by await
-      return engine.cleanAndFetch(key, variables, middleware, afterware);
+      return engine.cleanAndFetch(operationKey, variables, middleware, afterware);
     };
 
-    const schema = schemaTree[key] = schemaTree[key] || {};
+    const schema = schemaTree[operationKey] = schemaTree[operationKey] || {};
     schema.name = operationName;
     schema.isMutate = isMutate;
     schema.output = outputType;
