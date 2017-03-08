@@ -1,6 +1,7 @@
 let uuid = 1;
 export const PREFIX = '$$GE_';
 
+export const SCHEMA_NAME = `${PREFIX}schema_name`;
 export const getNewSchemaKey = () => `${PREFIX}anonymous_${uuid++}`;
 export const getHiddenFieldName = (field) => `${PREFIX}hidden_${field}`;
 export const getOperationKey = (entity, field) => `${PREFIX}operation_${entity}_${field}`;
@@ -53,4 +54,23 @@ export const attachGetterSetter = (fieldName, descriptor, displayName, dataType)
   delete descriptor.value;
 
   return descriptor;
+};
+
+export const atomToVariableString(value, dataType) => {
+  if (value === null || value === undefined) {
+    return 'null';
+  }
+
+  switch (dataType) {
+    case 'Date':
+      return value.getTime();
+    case 'String':
+      return `"${value}"`;
+    case 'Number':
+      return value;
+    case 'Boolean':
+      return value ? 'true' : 'false';
+    case 'ID':
+      return `"${value}"`;
+  }
 };

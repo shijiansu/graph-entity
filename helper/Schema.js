@@ -1,4 +1,4 @@
-import { getNewSchemaKey, attachGetterSetter, ATOM_TYPE } from './utils';
+import { getNewSchemaKey, attachGetterSetter, ATOM_TYPE, atomToVariableString } from './utils';
 
 export default class Schema {
   _schemaTree = {};
@@ -59,7 +59,7 @@ export default class Schema {
       Object.keys(fields).forEach(key => {
         const { type, alias } = fields[key];
 
-        if (excludes.indexOf(`${innerPaths.concat(key).join('.')}`) >= 0) {
+        if (excludes.indexOf(`${innerPaths.filter(Boolean).concat(key).join('.')}`) >= 0) {
           return;
         }
 
@@ -119,8 +119,27 @@ export default class Schema {
     return instance;
   }
 
-  cleanInput() {
+  composeVariables(variables) {
+    // join 'on' fields into normal fields
+    // const allFields = { ...this.fields };
+    // Object.keys(this.ons).forEach(on => {
+    //   Object.assign(allFields, this.ons[on]);
+    // });
 
+    // // map data to entity instance
+    // const result = Object.keys(allFields).forEach(key => {
+    //   const { type, alias } = allFields[key];
+    //   const value = variables[alias];
+
+    //   if (ATOM_TYPE.includes(type)) {
+    //     result.push(`${key}: ${atomToVariableString(value)}`);
+    //   } else if (value instanceof Array) {
+
+    //   } else {
+
+    //   }
+
+    // });
   }
 
   static generateNestedFields(schemaTree, fields, paths) {

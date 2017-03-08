@@ -1,7 +1,7 @@
 import { getOperationKey } from '../helper/utils';
 import Schema from '../helper/Schema';
 
-export default (schemaTree, engine, isMutate) => {
+export default (schemaTree, engine, isMutation) => {
   const decorator = (operationName, output, input) => (proto, fieldName, descriptor) => {
     // don't know if proto is prototype of class (static or not)
     const entityName = proto.name || proto.constructor.name;
@@ -19,8 +19,8 @@ export default (schemaTree, engine, isMutate) => {
     }
 
     const originFunc = descriptor.value;
-    descriptor.value = function (...args) {
-      const ret = originFunc(...args);
+    descriptor.value = function() {
+      const ret = originFunc.apply(this, Array.from(arguments));
       const { variables = ret, afterware, middleware } = ret;
 
       // it returns a Promise, so should be called by await
@@ -29,7 +29,7 @@ export default (schemaTree, engine, isMutate) => {
 
     const schema = schemaTree[operationKey] = schemaTree[operationKey] || {};
     schema.name = operationName;
-    schema.isMutate = isMutate;
+    schema.isMutation = isMutation;
     schema.output = outputType;
     schema.input = inputType;
 
