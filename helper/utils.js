@@ -1,19 +1,23 @@
 let uuid = 1;
 export const PREFIX = '$$GE_';
-
 export const SCHEMA_NAME = `${PREFIX}schema_name`;
+
 export const getNewSchemaKey = () => `${PREFIX}anonymous_${uuid++}`;
 export const getHiddenFieldName = (field) => `${PREFIX}hidden_${field}`;
 export const getOperationKey = (entity, field) => `${PREFIX}operation_${entity}_${field}`;
 
-export const ATOM_TYPE = ['Date', 'String', 'Number', 'Boolean', 'ID'];
+export const ATOM_TYPE = ['Date', 'String', 'Number', 'Boolean', 'ID', 'Enum'];
 
-export const attachGetterSetter = (fieldName, descriptor, displayName, dataType) => {
+export const attachGetterSetter = (fieldName, descriptor, displayName, dataType, schemaTree) => {
   const __fieldName = getHiddenFieldName(fieldName);
 
-  const normalize = ATOM_TYPE.includes(dataType) ? (value) => {
+  const normalize = (value) => {
     if (value === null || value === undefined) {
       return null;
+    }
+
+    if (value instanceof Array) {
+      return value.map(v => normalize(v));
     }
 
     switch (dataType) {
@@ -27,8 +31,16 @@ export const attachGetterSetter = (fieldName, descriptor, displayName, dataType)
         return Boolean(value);
       case 'ID':
         return value;
+      case 'Enum':
+        return value;
+      default:
     }
-  } : v => v;
+
+    if (dataType !== value.constructor[SCHEMA_NAME]) {
+      return schemaTree[dataType].composeResult(value);
+    }
+    return value;
+  };
 
   // warning when accessing an untouched field
   descriptor.get = function () {
@@ -37,13 +49,13 @@ export const attachGetterSetter = (fieldName, descriptor, displayName, dataType)
       return undefined;
     }
 
-    return this[__fieldName].value;
+    return normalize(this[__fieldName].value);
   };
 
   descriptor.set = function (value) {
     this[__fieldName] = {
       touched: true,
-      value: normalize(value),
+      value,
     };
   };
 
@@ -56,12 +68,35 @@ export const attachGetterSetter = (fieldName, descriptor, displayName, dataType)
   return descriptor;
 };
 
-export const atomToVariableString(value, dataType) => {
+export const detectDataType = value => {
+  if (value instanceof Date) {
+    return 'Date';
+  }
+
+  switch (typeof value) {
+    case 'number':
+      return 'Number';
+    case 'string':
+      return 'String';
+    case 'boolean':
+      return 'Boolean';
+    default:
+      return 'ID';
+  }
+};
+
+export const atomToVariableString = (value, dataType) => {
   if (value === null || value === undefined) {
     return 'null';
   }
 
-  switch (dataType) {
+  if (value instanceof Array) {
+    return value.map(v => atomToVariableString(v)).join(',');
+  }
+
+  const type = dataType || detectDataType(value);
+
+  switch (type) {
     case 'Date':
       return value.getTime();
     case 'String':
@@ -72,5 +107,8 @@ export const atomToVariableString(value, dataType) => {
       return value ? 'true' : 'false';
     case 'ID':
       return `"${value}"`;
+    case 'Enum':
+      return value;
+    default:
   }
 };

@@ -5,16 +5,16 @@ export default (schemaTree) => {
   const decorator = (dataType, alias) => (proto, fieldName, descriptor) => {
     const entityName = proto.constructor.name;
 
-    if (proto.constructor[SCHEMA_NAME]) {
+    if (!proto.constructor[SCHEMA_NAME]) {
       proto.constructor[SCHEMA_NAME] = entityName;
     }
 
     const schema = schemaTree[entityName]
       || new Schema(schemaTree, entityName, proto.constructor, [entityName]);
 
-    schema.addField(fieldName, dataType, alias);
+    const generatedType = schema.addField(fieldName, dataType, alias);
 
-    return attachGetterSetter(fieldName, descriptor, schema.displayName, dataType);
+    return attachGetterSetter(fieldName, descriptor, schema.displayName, generatedType, schemaTree);
   };
 
   return decorator;

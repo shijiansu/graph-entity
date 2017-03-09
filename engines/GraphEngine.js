@@ -1,3 +1,5 @@
+import { SCHEMA_NAME, atomToVariableString } from '../helper/utils';
+
 export default class {
   _schemaTree = {};
   _uri = null;
@@ -20,17 +22,12 @@ export default class {
       intputFields = this.stringifyVariables(variables);
     }
 
-    // const varArray = Object.keys(variables).map(k => {
-    //   const value = variables[k];
-
-    //   if (value instanceof Array) {
-
-    //   }
-    //   return `${k}: ${typeof value === 'string' ? '"' + value + '"' : JSON.stringify(value)}`;
-    // });
+    if (intputFields.startsWith('{')) {
+      intputFields = intputFields.substring(1, intputFields.length - 2);
+    }
 
     const body = `${isMutation ? 'mutation' : 'query'} {
-      ${name}(${varArray.join(',\n')}){
+      ${name}(${intputFields}){
         ${outputFields.join('\n')}
       }
     }`;
@@ -65,6 +62,29 @@ export default class {
   }
 
   stringifyVariables(variables) {
+    if (variables === null || variables === undefined) {
+      return 'null';
+    }
 
+    if (variables instanceof Array) {
+      const result = variables.map(v => this.stringifyVariables(v));
+      return `[${result.join(',\n')}]`;
+    }
+
+    if (typeof variables !== 'object') {
+      return atomToVariableString(variables);
+    }
+
+    const schemaName = variables.constructor[SCHEMA_NAME];
+    if (schemaName) {
+      return this._schemaTree[schemaName].composeVariables(variables);
+    }
+
+    const result = Object.keys(variables).map(key => {
+      const value = variables[key];
+      return `${key}: ${this.stringifyVariables(value)}`;
+    });
+
+    return `{\n${result.join(',\n')}\n}`;
   }
 }

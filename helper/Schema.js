@@ -1,4 +1,4 @@
-import { getNewSchemaKey, attachGetterSetter, ATOM_TYPE, atomToVariableString } from './utils';
+import { getNewSchemaKey, attachGetterSetter, ATOM_TYPE, atomToVariableString, SCHEMA_NAME } from './utils';
 
 export default class Schema {
   _schemaTree = {};
@@ -29,6 +29,7 @@ export default class Schema {
     }
 
     this.fields[name] = { type, alias: alias || name };
+    return type;
   }
 
   addFieldOn(name, type, ons) {
@@ -48,6 +49,8 @@ export default class Schema {
       // use alias for handle convenniencely
       this.ons[o][name] = { type, alias: name };
     });
+
+    return type;
   }
 
   composeToString(paths, excludes = []) {
@@ -120,37 +123,47 @@ export default class Schema {
   }
 
   composeVariables(variables) {
+    if (variables == null || variables === undefined) {
+      return 'null';
+    }
+
+    if (variables instanceof Array) {
+      return `[${variables.map(item => this.composeVariables(item)).join(',\n')}]`;
+    }
+
     // join 'on' fields into normal fields
-    // const allFields = { ...this.fields };
-    // Object.keys(this.ons).forEach(on => {
-    //   Object.assign(allFields, this.ons[on]);
-    // });
+    const allFields = { ...this.fields };
+    Object.keys(this.ons).forEach(on => {
+      Object.assign(allFields, this.ons[on]);
+    });
 
-    // // map data to entity instance
-    // const result = Object.keys(allFields).forEach(key => {
-    //   const { type, alias } = allFields[key];
-    //   const value = variables[alias];
+    // if variables is object
+    const result = Object.keys(allFields).map(key => {
+      const { type, alias } = allFields[key];
+      const value = variables[alias] || variables[key];
 
-    //   if (ATOM_TYPE.includes(type)) {
-    //     result.push(`${key}: ${atomToVariableString(value)}`);
-    //   } else if (value instanceof Array) {
+      if (ATOM_TYPE.includes(type)) {
+        return `${alias}: ${atomToVariableString(value, type)}`;
+      }
 
-    //   } else {
+      const schema = this._schemaTree[type];
+      return `${alias}: ${schema.composeVariables(value)}`;
+    });
 
-    //   }
-
-    // });
+    return `{\n${result.join(',\n')}\n}`;
   }
 
   static generateNestedFields(schemaTree, fields, paths) {
     const AnonymousClass = function () {};
     const schema = new Schema(schemaTree, null, AnonymousClass, paths);
 
+    AnonymousClass[SCHEMA_NAME] = schema.schemaKey;
+
     Object.keys(fields).forEach(key => {
       Object.defineProperty(
         AnonymousClass.prototype,
         key,
-        attachGetterSetter(key, {}, schema.displayName, fields[key])
+        attachGetterSetter(key, {}, schema.displayName, fields[key], schemaTree)
       );
 
       schema.addField(key, fields[key], key);

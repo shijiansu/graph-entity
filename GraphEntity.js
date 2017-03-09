@@ -17,7 +17,7 @@ export default class {
   */
   _schemaTree = {};
 
-  constructor(engine, config) {
+  constructor(engine) {
     if (!engine) {
       throw new Error('Please set an engine to graph-entity (graphEngine or restEngine)');
     }
