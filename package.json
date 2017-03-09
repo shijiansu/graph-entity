@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack --watch",
-    "build": "webpack"
+    "start": "webpack example/index.js example/dist.js --watch",
+    "prepublish": "webpack index.js lib/index.js -p"
   },
   "author": "zxlwbi199101",
   "license": "ISC",
