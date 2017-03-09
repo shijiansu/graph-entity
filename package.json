@@ -1,8 +1,8 @@
 {
   "name": "graph-entity",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.1.0",
+  "description": "use entity visit graph server",
+  "main": "lib/index.js",
   "scripts": {
     "start": "webpack example/index.js example/dist.js --watch",
     "prepublish": "webpack index.js lib/index.js -p"
