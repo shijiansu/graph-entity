@@ -4,7 +4,7 @@ import Schema from '../helper/Schema';
 export default (schemaTree, engine, isMutation) => {
   const decorator = (operationName, output, input) => (proto, fieldName, descriptor) => {
     // don't know if proto is prototype of class (static or not)
-    const entityName = proto.name || proto.constructor.name;
+    const entityName = proto.prototype ? proto.name : proto.constructor.name;
     const operationKey = getOperationKey(entityName, fieldName);
 
     // store the query meta in the schemaTree because of exclude supporting
@@ -19,7 +19,7 @@ export default (schemaTree, engine, isMutation) => {
     }
 
     const originFunc = descriptor.value;
-    descriptor.value = function() {
+    descriptor.value = function () {
       const ret = originFunc.apply(this, Array.from(arguments));
       const { variables = ret, afterware, middleware } = ret;
 
