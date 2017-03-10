@@ -92,7 +92,7 @@ export const atomToVariableString = (value, dataType) => {
   }
 
   if (value instanceof Array) {
-    return value.map(v => atomToVariableString(v)).join(',');
+    return `[${value.map(v => atomToVariableString(v)).join(',')}]`;
   }
 
   const type = dataType || detectDataType(value);

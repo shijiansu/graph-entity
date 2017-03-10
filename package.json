@@ -1,6 +1,6 @@
 {
   "name": "graph-entity",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "define a decorated class to visit graph server.",
   "keywords": [
     "graphql",
@@ -8,7 +8,7 @@
     "graphentity",
     "graph-entity"
   ],
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/zxlwbi199101/graph-entity"
