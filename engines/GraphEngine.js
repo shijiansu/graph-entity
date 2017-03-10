@@ -1,5 +1,26 @@
 import { SCHEMA_NAME, atomToVariableString } from '../helper/utils';
 
+/**********************************
+ * global debug storage
+ **********************************/
+const $GE_DEBUG = [];
+
+const outputOne = (debug) => {
+  console.group(`${debug.name} details:`);
+  console.log('input', debug.input);
+  console.log('%cerrors', `${debug.errors ? 'color: red; font-weight: bold' : ''}`, debug.errors);
+  console.log('response', debug.response);
+  console.log('graphiURL', debug.graphiURL);
+  console.groupEnd();
+};
+
+window.$GE_LIST = () => { $GE_DEBUG.forEach(d => outputOne(d)); };
+
+/**********************************
+ *
+ * network engine to visit graph server
+ *
+ **********************************/
 export default class {
   _schemaTree = {};
   _uri = null;
@@ -32,6 +53,14 @@ export default class {
       }
     }`;
 
+    const debug = {};
+    $GE_DEBUG.push(debug);
+    debug.name = name;
+    debug.input = variables;
+    debug.query = intputFields;
+    debug.fields = outputFields.join('\n');
+    debug.graphiURL = `http://localhost:4000/graphiql?query=${encodeURIComponent(body)}`;
+
     return fetch(this._uri, {
       body: JSON.stringify({ query: body }),
       method: 'POST',
@@ -43,6 +72,10 @@ export default class {
     })
     .then(res => res.json())
     .then(json => {
+      debug.errors = json.errors;
+      debug.response = json.data;
+      outputOne(debug);
+
       if (json.errors) {
         return { errors: json.errors };
       }

@@ -123,9 +123,9 @@ export default class Schema {
   }
 
   composeVariables(variables) {
-    if (variables == null || variables === undefined) {
-      return 'null';
-    }
+    // if (variables == null || variables === undefined) {
+    //   return 'null';
+    // }
 
     if (variables instanceof Array) {
       return `[${variables.map(item => this.composeVariables(item)).join(',\n')}]`;
@@ -142,15 +142,19 @@ export default class Schema {
       const { type, alias } = allFields[key];
       const value = variables[alias] || variables[key];
 
+      if (value === undefined || value === null) {
+        return null;
+      }
       if (ATOM_TYPE.includes(type)) {
         return `${alias}: ${atomToVariableString(value, type)}`;
       }
+
 
       const schema = this._schemaTree[type];
       return `${alias}: ${schema.composeVariables(value)}`;
     });
 
-    return `{\n${result.join(',\n')}\n}`;
+    return `{\n${result.filter(r => r).join(',\n')}\n}`;
   }
 
   static generateNestedFields(schemaTree, fields, paths) {
