@@ -6,9 +6,10 @@ import { SCHEMA_NAME, atomToVariableString } from '../helper/utils';
 const $GE_DEBUG = [];
 
 const outputOne = (debug) => {
-  console.group(`${debug.name} details:`);
+  const hasError = !!debug.errors;
+  console.group(`%c${debug.name}: ${hasError ? '×' : '√'}`, `font-size: 14px; font-weight: bold; color: ${hasError ? 'red' : 'green'}`);
   console.log('input', debug.input);
-  console.log('%cerrors', `${debug.errors ? 'color: red; font-weight: bold' : ''}`, debug.errors);
+  console.log('errors', debug.errors);
   console.log('response', debug.response);
   console.log('graphiURL', debug.graphiURL);
   console.groupEnd();
